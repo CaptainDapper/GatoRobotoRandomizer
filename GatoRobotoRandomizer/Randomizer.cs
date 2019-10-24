@@ -25,13 +25,16 @@ namespace GatoRobotoRandomizer {
 		}
 
 		public List<RandoLocation> Randomize() {
+			IO.Output("Get Stuff");
 			itemPool = RandoData.GetAllItems();
 			locationPool = RandoData.GetAllLocations();
 
 			List<RandoLocation> obtainedLocations = new List<RandoLocation>();
 			List<string> obtainedItems = new List<string>();
 
+			IO.Output("Main Rando Loop");
 			while (locationPool.Count > 0) {
+				IO.Output($"locpool count: {locationPool.Count}");
 				int currentAvailable = countAvailableLocations(obtainedItems, out List<string> availableLocations);
 				Candidate chosenItem;
 				RandoLocation chosenLocation;
@@ -39,12 +42,14 @@ namespace GatoRobotoRandomizer {
 				Debug.WriteLine(string.Join(" ", availableLocations));
 
 				if (locationPool.Count == 1 && itemPool.Count == 1) {
+					IO.Output("Almost done! Last location.");
 					//The last metroid is in captivity. The galaxy is almost complete.
 					string iKey = itemPool.Keys.ToArray()[0];
 					chosenItem = new Candidate(iKey, itemPool[iKey]); //itemPool.Keys[0];
 					chosenLocation = locationPool.Values.ToArray()[0];
 				} else {
 					if (currentAvailable == 1 && !Logic.Eval(RandoData.Macros["CAN_COMPLETE_GAME"].LogicPost, obtainedItems)) {
+						IO.Output("Must force!");
 						//Force Progression
 						List<Candidate> candItems = getItemCandidates(obtainedItems, currentAvailable, availableLocations);
 						if (candItems.Count == 0) {
@@ -71,11 +76,12 @@ namespace GatoRobotoRandomizer {
 				obtainedItems.Add(chosenItem.ItemID);
 
 				Debug.WriteLine($"{chosenLocation.Name}: I got put a {chosenItem.Item.Type.Name} on me.");
-				Debug.Write("");
 			}
-
+			
+			IO.Output("Rando Finish");
 			Debug.WriteLine("Randomizing is finished... Let's see what we've got!");
 
+			IO.Output("Rando Debug Dump");
 			foreach (RandoLocation loc in obtainedLocations) {
 				Debug.WriteLine($"{loc.Name} now has {loc.Item.Type.Name}");
 			}

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GatoRobotoRandomizer {
 	public static class RandoSettings {
-		private const string SubVersion = "";
+		private const string SubVersion = "bug";
 
 		public static Dictionary<string, bool> Options_bool = new Dictionary<string, bool>() {
 			{ "OPTB_small_mech", false },

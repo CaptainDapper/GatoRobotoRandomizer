@@ -8,10 +8,13 @@ using System;
 
 namespace GatoRobotoRandomizer {
 	public static class IO {
-		private static string[] _files = { "map0", "map1", "map2", "map3", "map4", "map5", "data.win" };
-
 		public static string Path { get; set; }
 		public static string BackupPath { get { return $"{Path}/GRR_BACKUP"; } }
+
+
+		private static string _outputLog { get { return $"{Path}/output_log.txt"; } }
+		private static string[] _files = { "map0", "map1", "map2", "map3", "map4", "map5", "data.win" };
+		private static bool _doClearOutput = false;
 
 		public static void MakeBackups() {
 			string backup_path = BackupPath;
@@ -31,6 +34,18 @@ namespace GatoRobotoRandomizer {
 			}
 
 			return true;
+		}
+
+		public static void Output(string message) {
+			if (!File.Exists(_outputLog) || _doClearOutput) {
+				File.Create(_outputLog).Dispose();
+			}
+
+			File.AppendAllText(_outputLog, message + Environment.NewLine);
+		}
+
+		public static void OutputClear() {
+			_doClearOutput = true;
 		}
 
 		private static void writeItemToLocation(JSONNode node, RandoItem item) {
@@ -55,7 +70,7 @@ namespace GatoRobotoRandomizer {
 
 			sb.Append("{ ");
 			bool first = true;
-			foreach (KeyValuePair<string,JSONNode> child in node.AsObject.Children2) {
+			foreach (KeyValuePair<string, JSONNode> child in node.AsObject.Children2) {
 				string k = child.Key;
 				JSONNode v = child.Value;
 
@@ -92,9 +107,11 @@ namespace GatoRobotoRandomizer {
 		public static void WriteData(List<RandoLocation> locations, bool doVanilla = false) {
 			Dictionary<string, JSONNode> maps = Randomizer.Maps;
 
+			IO.Output("Make Map Changes");
 			//make map changes
 			MapChanger.MakeChanges(doVanilla);
 
+			IO.Output("Write Items");
 			//make item rando changes
 			foreach (RandoLocation loc in locations) {
 				JSONNode node = maps[loc.Map][loc.Room][loc.Inst];
@@ -102,6 +119,7 @@ namespace GatoRobotoRandomizer {
 				writeItemToLocation(node, loc.Item);
 			}
 
+			IO.Output("Serialize & encode all");
 			foreach (string map in maps.Keys) {
 				//serialize and encode
 				JSONNode node = maps[map];
@@ -110,6 +128,8 @@ namespace GatoRobotoRandomizer {
 				using (StreamWriter sw = File.CreateText(Path + "/" + map)) {
 					sw.Write(encoded);
 				}
+
+				IO.Output($"{map} done.");
 			}
 		}
 
