@@ -48,11 +48,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>icon_256_1ZB_icon.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\icon_256_1ZB_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="altar">
-      <HintPath>..\altar.exe</HintPath>
+    <Reference Include="altar, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Resources\altar.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -115,10 +116,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="refresh-solid.png" />
+    <None Include="Resources\refresh-solid.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="icon_256_1ZB_icon.ico" />
+    <Content Include="Resources\icon_256_1ZB_icon.ico" />
+    <Content Include="Resources\altar.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">

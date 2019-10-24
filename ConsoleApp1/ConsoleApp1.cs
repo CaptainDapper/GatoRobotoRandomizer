@@ -17,7 +17,7 @@ namespace ConsoleApp1 {
 			IO.Path = "C:/Program Files (x86)/Steam/steamapps/common/Gato Roboto";
 			IO.Path = "E:\\Projects\\GatoRobotoRandomizer\\GatoRobotoRandomizer\\bin\\Debug";
 
-			
+			GMFile gm = GMFile.GetFile(IO.DataWinFile);
 
 			mapExplore();
 

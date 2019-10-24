@@ -10,6 +10,7 @@ namespace GatoRobotoRandomizer {
 	public static class IO {
 		private static string[] _files = { "map0", "map1", "map2", "map3", "map4", "map5", "data.win" };
 
+		public static string DataWinFile { get { return $"{Path}/{_files[6]}"; } }
 		public static string Path { get; set; }
 		public static string BackupPath { get { return $"{Path}/GRR_BACKUP"; } }
 

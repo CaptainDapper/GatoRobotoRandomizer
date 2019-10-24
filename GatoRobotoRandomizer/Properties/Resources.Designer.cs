@@ -65,7 +65,7 @@ namespace GatoRobotoRandomizer.Properties {
         /// </summary>
         internal static System.Drawing.Bitmap refresh_solid {
             get {
-                object obj = ResourceManager.GetObject("refresh-solid", resourceCulture);
+                object obj = ResourceManager.GetObject("refresh_solid", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

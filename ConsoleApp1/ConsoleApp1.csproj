@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <Reference Include="altar">
-      <HintPath>..\altar.exe</HintPath>
+      <HintPath>..\GatoRobotoRandomizer\Resources\altar.exe</HintPath>
     </Reference>
   </ItemGroup>
 
