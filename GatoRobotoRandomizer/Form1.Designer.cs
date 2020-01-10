@@ -31,6 +31,7 @@ namespace GatoRobotoRandomizer {
 			this.btn_reroll = new System.Windows.Forms.Button();
 			this.btn_submit = new System.Windows.Forms.Button();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.optb_beginner = new System.Windows.Forms.CheckBox();
 			this.optb_advanced = new System.Windows.Forms.CheckBox();
 			this.optb_phase_save = new System.Windows.Forms.CheckBox();
 			this.optb_small_mech = new System.Windows.Forms.CheckBox();
@@ -39,7 +40,7 @@ namespace GatoRobotoRandomizer {
 			this.text_seed = new System.Windows.Forms.TextBox();
 			this.btn_restore = new System.Windows.Forms.Button();
 			this.button1 = new System.Windows.Forms.Button();
-			this.optb_beginner = new System.Windows.Forms.CheckBox();
+			this.optb_100_possible = new System.Windows.Forms.CheckBox();
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -78,16 +79,29 @@ namespace GatoRobotoRandomizer {
 			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.groupBox1.Controls.Add(this.optb_100_possible);
 			this.groupBox1.Controls.Add(this.optb_beginner);
 			this.groupBox1.Controls.Add(this.optb_advanced);
 			this.groupBox1.Controls.Add(this.optb_phase_save);
 			this.groupBox1.Controls.Add(this.optb_small_mech);
 			this.groupBox1.Location = new System.Drawing.Point(14, 41);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(252, 116);
+			this.groupBox1.Size = new System.Drawing.Size(252, 137);
 			this.groupBox1.TabIndex = 4;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Options";
+			// 
+			// optb_beginner
+			// 
+			this.optb_beginner.AutoSize = true;
+			this.optb_beginner.Location = new System.Drawing.Point(6, 88);
+			this.optb_beginner.Name = "optb_beginner";
+			this.optb_beginner.Size = new System.Drawing.Size(97, 17);
+			this.optb_beginner.TabIndex = 3;
+			this.optb_beginner.Text = "Beginner Logic";
+			this.toolTip1.SetToolTip(this.optb_beginner, "Restricts a few locations, mostly stuff you wouldn\'t think about trying in your f" +
+        "irst few plays.");
+			this.optb_beginner.UseVisualStyleBackColor = true;
 			// 
 			// optb_advanced
 			// 
@@ -130,7 +144,7 @@ namespace GatoRobotoRandomizer {
 			// 
 			this.lbl_Version.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.lbl_Version.AutoSize = true;
-			this.lbl_Version.Location = new System.Drawing.Point(11, 176);
+			this.lbl_Version.Location = new System.Drawing.Point(11, 197);
 			this.lbl_Version.Name = "lbl_Version";
 			this.lbl_Version.Size = new System.Drawing.Size(34, 13);
 			this.lbl_Version.TabIndex = 1;
@@ -148,7 +162,7 @@ namespace GatoRobotoRandomizer {
 			// btn_restore
 			// 
 			this.btn_restore.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.btn_restore.Location = new System.Drawing.Point(158, 163);
+			this.btn_restore.Location = new System.Drawing.Point(158, 184);
 			this.btn_restore.Name = "btn_restore";
 			this.btn_restore.Size = new System.Drawing.Size(108, 23);
 			this.btn_restore.TabIndex = 6;
@@ -159,7 +173,7 @@ namespace GatoRobotoRandomizer {
 			// button1
 			// 
 			this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.button1.Location = new System.Drawing.Point(77, 163);
+			this.button1.Location = new System.Drawing.Point(77, 184);
 			this.button1.Name = "button1";
 			this.button1.Size = new System.Drawing.Size(75, 23);
 			this.button1.TabIndex = 7;
@@ -167,23 +181,23 @@ namespace GatoRobotoRandomizer {
 			this.button1.UseVisualStyleBackColor = true;
 			this.button1.Click += new System.EventHandler(this.Button1_Click);
 			// 
-			// optb_beginner
+			// optb_100Possible
 			// 
-			this.optb_beginner.AutoSize = true;
-			this.optb_beginner.Location = new System.Drawing.Point(6, 88);
-			this.optb_beginner.Name = "optb_beginner";
-			this.optb_beginner.Size = new System.Drawing.Size(97, 17);
-			this.optb_beginner.TabIndex = 3;
-			this.optb_beginner.Text = "Beginner Logic";
-			this.toolTip1.SetToolTip(this.optb_beginner, "Restricts a few locations, mostly stuff you wouldn\'t think about trying in your f" +
-        "irst few plays.");
-			this.optb_beginner.UseVisualStyleBackColor = true;
+			this.optb_100_possible.AutoSize = true;
+			this.optb_100_possible.Location = new System.Drawing.Point(6, 111);
+			this.optb_100_possible.Name = "optb_100Possible";
+			this.optb_100_possible.Size = new System.Drawing.Size(130, 17);
+			this.optb_100_possible.TabIndex = 3;
+			this.optb_100_possible.Text = "Ensure 100% Possible";
+			this.toolTip1.SetToolTip(this.optb_100_possible, "Logic will ensure access to every location as well as ensuring a game completion." +
+        "");
+			this.optb_100_possible.UseVisualStyleBackColor = true;
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(280, 198);
+			this.ClientSize = new System.Drawing.Size(280, 219);
 			this.Controls.Add(this.button1);
 			this.Controls.Add(this.btn_restore);
 			this.Controls.Add(this.lbl_Version);
@@ -218,6 +232,7 @@ namespace GatoRobotoRandomizer {
 		private System.Windows.Forms.Button btn_restore;
 		private System.Windows.Forms.Button button1;
 		private System.Windows.Forms.CheckBox optb_beginner;
+		private System.Windows.Forms.CheckBox optb_100_possible;
 	}
 }
 

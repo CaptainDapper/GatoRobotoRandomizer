@@ -38,10 +38,10 @@ namespace GatoRobotoRandomizer {
 			IO.Output("Rando Click");
 			DialogResult dr = MessageBox.Show("Continue with Randomization? This will overwrite the map files.", "Please Insert Quarter", MessageBoxButtons.YesNo);
 			if (dr == DialogResult.No) {
-				IO.Output("No");
+				IO.Output("msgBox: No");
 				return;
 			}
-			IO.Output("Yes");
+			IO.Output("msgBox: Yes");
 
 			IO.Output("Parse Seed");
 			if (!int.TryParse(text_seed.Text, out int seed)) {
@@ -58,6 +58,7 @@ namespace GatoRobotoRandomizer {
 			RandoSettings.Options_bool["OPTB_phase_save"] = optb_phase_save.Checked;
 			RandoSettings.Options_bool["OPTB_advanced"] = optb_advanced.Checked;
 			RandoSettings.Options_bool["OPTB_not_beginner"] = !optb_beginner.Checked;
+			RandoSettings.Options_bool["OPTB_not_100"] = !optb_100_possible.Checked;
 
 			IO.Output("Rando Inst");
 			//Randomize me Captain
@@ -89,6 +90,12 @@ namespace GatoRobotoRandomizer {
 		}
 
 		private void Form1_Load(object sender, EventArgs e) {
+			IO.Output("Macro Dump:");
+			foreach (RandoMacro macro in RandoData.Macros.Values) {
+				IO.Output($"--{macro.Name} Post: '{macro.LogicPost}'");
+				IO.Output($"--{macro.Name} Base: '{macro.LogicBase}'\n");
+			}
+
 			promptForBackup();
 			IO.OutputClear();
 			lbl_Version.Text = $"v{RandoSettings.Version}";
@@ -98,22 +105,22 @@ namespace GatoRobotoRandomizer {
 			IO.Output("Restore Click");
 			DialogResult dr = MessageBox.Show("This doesn't actually restore your backups, but it will really place the items in their vanilla locations. Continue?", "Please Remove Quarter", MessageBoxButtons.YesNo);
 			if (dr == DialogResult.No) {
-				IO.Output("No");
+				IO.Output("msgBox: No");
 				return;
 			}
-			IO.Output("Yes");
+			IO.Output("msgBox: Yes");
 
 			IO.Output("Init Data");
-			Dictionary<string, RandoLocation> locs = RandoData.GetAllLocations();
-			Dictionary<string, RandoItem> itms = RandoData.GetAllItems();
+			List<RandoLocation> locs = RandoData.GetAllLocations();
+			List<RandoItem> itms = RandoData.GetAllItems();
 
 			IO.Output("Loop default data");
-			foreach (string key in locs.Keys) {
-				locs[key].PlaceItem(itms[locs[key].ItemName]);
+			foreach (RandoItem item in itms) {
+				locs.First(v => v.ID == item.OrigLoc).PlaceItem(item);
 			}
 
 			IO.Output("IO Write");
-			IO.WriteData(locs.Values.ToList(), true);
+			IO.WriteData(locs.ToList(), true);
 
 			IO.Output("Restore Done!");
 			MessageBox.Show("Unrandomization Complete!", "I hope you hate this! ;)");

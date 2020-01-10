@@ -38,8 +38,10 @@ namespace GatoRobotoRandomizer {
 		}
 
 		public static void Output(string message) {
+			Debug.WriteLine("logged -> " + message);
 			if (!File.Exists(_outputLog) || _doClearOutput) {
 				File.Create(_outputLog).Dispose();
+				_doClearOutput = false;
 			}
 
 			File.AppendAllText(_outputLog, message + Environment.NewLine);

@@ -3,48 +3,46 @@ using System.Diagnostics;
 
 namespace GatoRobotoRandomizer {
 	static partial class RandoData {
-		public static Dictionary<string, RandoItem> GetAllItems() {
-			Dictionary<string, RandoItem> itemDict = new Dictionary<string, RandoItem>();
+		public static List<RandoItem> GetAllItems() {
+			List<RandoItem> items = new List<RandoItem>();
 
-			itemDict.Add("L-C2", new RandoItem("L-C2", new ItemTypes.vhs(), "choose_palette_3"));
-			itemDict.Add("L-H2", new RandoItem("L-H2", new ItemTypes.hp()));
-			itemDict.Add("L-C1", new RandoItem("L-C1", new ItemTypes.vhs(), "choose_palette_2"));
-			itemDict.Add("L-H1", new RandoItem("L-H1", new ItemTypes.hp()));
-			itemDict.Add("rocket", new RandoItem("L-U1", new ItemTypes.rocket()));
-			itemDict.Add("decoder", new RandoItem("L-U2", new ItemTypes.decoder()));
+			items.Add(new RandoItem("L-C2", new ItemTypes.vhs(), "choose_palette_3"));
+			items.Add(new RandoItem("L-H2", new ItemTypes.hp()));
+			items.Add(new RandoItem("L-C1", new ItemTypes.vhs(), "choose_palette_2"));
+			items.Add(new RandoItem("L-H1", new ItemTypes.hp()));
+			items.Add(new RandoItem("L-U1", new ItemTypes.rocket()));
+			items.Add(new RandoItem("L-U2", new ItemTypes.decoder()));
 
-			itemDict.Add("A-C3", new RandoItem("A-C3", new ItemTypes.vhs(), "choose_palette_4"));
-			itemDict.Add("A-H1", new RandoItem("A-H1", new ItemTypes.hp()));
-			itemDict.Add("A-H2", new RandoItem("A-H2", new ItemTypes.hp()));
-			itemDict.Add("djump", new RandoItem("A-U1", new ItemTypes.djump()));
-			itemDict.Add("A-C1", new RandoItem("A-C1", new ItemTypes.vhs(), "choose_palette_2", "-1"));
-			itemDict.Add("A-C2", new RandoItem("A-C2", new ItemTypes.vhs(), "choose_palette_7"));
+			items.Add(new RandoItem("A-C3", new ItemTypes.vhs(), "choose_palette_4"));
+			items.Add(new RandoItem("A-H1", new ItemTypes.hp()));
+			items.Add(new RandoItem("A-H2", new ItemTypes.hp()));
+			items.Add(new RandoItem("A-U1", new ItemTypes.djump()));
+			items.Add(new RandoItem("A-C1", new ItemTypes.vhs(), "choose_palette_2", "-1"));
+			items.Add(new RandoItem("A-C2", new ItemTypes.vhs(), "choose_palette_7"));
 
-			itemDict.Add("N-H2", new RandoItem("N-H2", new ItemTypes.hp()));
-			itemDict.Add("N-C1", new RandoItem("N-C1", new ItemTypes.vhs(), "choose_palette_5"));
-			itemDict.Add("N-H1", new RandoItem("N-H1", new ItemTypes.hp()));
-			itemDict.Add("N-C3", new RandoItem("N-C3", new ItemTypes.vhs(), "choose_palette_7", "-1"));
-			itemDict.Add("N-C2", new RandoItem("N-C2", new ItemTypes.vhs(), "choose_palette_3", "-1"));
+			items.Add(new RandoItem("N-H2", new ItemTypes.hp()));
+			items.Add(new RandoItem("N-C1", new ItemTypes.vhs(), "choose_palette_5"));
+			items.Add(new RandoItem("N-H1", new ItemTypes.hp()));
+			items.Add(new RandoItem("N-C3", new ItemTypes.vhs(), "choose_palette_7", "-1"));
+			items.Add(new RandoItem("N-C2", new ItemTypes.vhs(), "choose_palette_3", "-1"));
 
-			itemDict.Add("H-C1", new RandoItem("H-C1", new ItemTypes.vhs(), "choose_palette_8"));
-			itemDict.Add("H-C3", new RandoItem("H-C3", new ItemTypes.vhs(), "choose_palette_6", "-1"));
-			itemDict.Add("cooler", new RandoItem("H-U2", new ItemTypes.cooler()));
-			itemDict.Add("H-C2", new RandoItem("H-C2", new ItemTypes.vhs(), "choose_palette_6"));
-			itemDict.Add("dash", new RandoItem("H-U1", new ItemTypes.dash()));
-			itemDict.Add("H-H2", new RandoItem("H-H2", new ItemTypes.hp()));
-			itemDict.Add("H-H1", new RandoItem("H-H1", new ItemTypes.hp()));
+			items.Add(new RandoItem("H-C1", new ItemTypes.vhs(), "choose_palette_8"));
+			items.Add(new RandoItem("H-C3", new ItemTypes.vhs(), "choose_palette_6", "-1"));
+			items.Add(new RandoItem("H-U2", new ItemTypes.cooler()));
+			items.Add(new RandoItem("H-C2", new ItemTypes.vhs(), "choose_palette_6"));
+			items.Add(new RandoItem("H-U1", new ItemTypes.dash()));
+			items.Add(new RandoItem("H-H2", new ItemTypes.hp()));
+			items.Add(new RandoItem("H-H1", new ItemTypes.hp()));
 
-			itemDict.Add("bigshot", new RandoItem("V-U1", new ItemTypes.bigshot()));
-			itemDict.Add("V-C1", new RandoItem("V-C1", new ItemTypes.vhs(), "choose_palette_8", "-1"));
-			itemDict.Add("V-C2", new RandoItem("V-C2", new ItemTypes.vhs(), "choose_palette_5", "-1"));
-			itemDict.Add("V-H1", new RandoItem("V-H1", new ItemTypes.hp()));
+			items.Add(new RandoItem("V-U1", new ItemTypes.bigshot()));
+			items.Add(new RandoItem("V-C1", new ItemTypes.vhs(), "choose_palette_8", "-1"));
+			items.Add(new RandoItem("V-C2", new ItemTypes.vhs(), "choose_palette_5", "-1"));
+			items.Add(new RandoItem("V-H1", new ItemTypes.hp()));
 
-			itemDict.Add("I-H1", new RandoItem("I-H1", new ItemTypes.hp()));
-			itemDict.Add("I-C1", new RandoItem("I-C1", new ItemTypes.vhs(), "choose_palette_4", "-1"));
+			items.Add(new RandoItem("I-H1", new ItemTypes.hp()));
+			items.Add(new RandoItem("I-C1", new ItemTypes.vhs(), "choose_palette_4", "-1"));
 
-			Debug.Write(itemDict["I-C1"].Type);
-
-			return itemDict;
+			return items;
 		}
 	}
 

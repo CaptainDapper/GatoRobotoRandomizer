@@ -12,7 +12,7 @@ namespace GatoRobotoRandomizer {
 			{ "CLEARED_AQUE", new RandoMacro("CLEARED_AQUE", "NEXUS") },
 			{ "CLEARED_HEAT", new RandoMacro("CLEARED_HEAT", "NEXUS & (OPTB_small_mech | dash)") },
 			{ "CLEARED_VENT", new RandoMacro("CLEARED_VENT", "NEXUS") },
-			{ "CAN_COMPLETE_GAME", new RandoMacro("CAN_COMPLETE_GAME", "INCUBATOR & dash") },
+			{ "CAN_COMPLETE_GAME", new RandoMacro("CAN_COMPLETE_GAME", "INCUBATOR & dash & (OPTB_not_100 | vhs>13)") },
 		};
 	}
 	class RandoMacro {
@@ -21,6 +21,8 @@ namespace GatoRobotoRandomizer {
 
 		private string pLogicPost = "";
 		public string LogicPost {
+			// This simply returns the macro as Postfixed; Macros NOT replaced.
+			// eg. 'INCUBATOR dash &'
 			get {
 				if (pLogicPost == "") {
 					pLogicPost = RPN.Parse(Logic);
@@ -32,6 +34,8 @@ namespace GatoRobotoRandomizer {
 
 		private string pLogicBase = "";
 		public string LogicBase {
+			// Gives us the Logic as basal as possible; Macros ARE replaced.
+			// eg. 'rocket rocket OPTB_small_mech dash | & & rocket & decoder & dash &'
 			get {
 				if (pLogicBase == "") {
 					//Can't use macro base; that's what we're building here!

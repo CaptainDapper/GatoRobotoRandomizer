@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using SimpleJSON;
+using System.Runtime.Serialization;
 
 namespace GatoRobotoRandomizer {
 	public class Randomizer {
 		private Random rnd;
 
-		private Dictionary<string, RandoItem> itemPool;
-		private Dictionary<string, RandoLocation> locationPool;
+		private List<RandoItem> unusedItems;
+		private List<RandoLocation> unusedLocations;
 
 		private static Dictionary<string, JSONNode> pMaps = null;
-		public static Dictionary<string, JSONNode> Maps { get {
+		public static Dictionary<string, JSONNode> Maps {
+			get {
 				if (pMaps == null) {
 					pMaps = IO.DecodeAllMaps();
 				}
@@ -26,73 +28,119 @@ namespace GatoRobotoRandomizer {
 
 		public List<RandoLocation> Randomize() {
 			IO.Output("Get Stuff");
-			itemPool = RandoData.GetAllItems();
-			locationPool = RandoData.GetAllLocations();
+			unusedItems = RandoData.GetAllItems();
+			unusedLocations = RandoData.GetAllLocations();
 
 			List<RandoLocation> obtainedLocations = new List<RandoLocation>();
-			List<string> obtainedItems = new List<string>();
+			List<RandoItem> obtainedItems = new List<RandoItem>();
 
 			IO.Output("Main Rando Loop");
-			while (locationPool.Count > 0) {
-				IO.Output($"locpool count: {locationPool.Count}");
-				int currentAvailable = countAvailableLocations(obtainedItems, out List<string> availableLocations);
-				Candidate chosenItem;
+			while (unusedLocations.Count > 0) {
+				IO.Output($"Start Loop: {unusedLocations.Count} locs left");
+				int availCount = countAvailableLocations(obtainedItems, out List<RandoLocation> allAvailLocations);
+				RandoItem chosenItem;
 				RandoLocation chosenLocation;
 
-				Debug.WriteLine(string.Join(" ", availableLocations));
-
-				if (locationPool.Count == 1 && itemPool.Count == 1) {
+				if (unusedLocations.Count == 1 && unusedItems.Count == 1) {
 					IO.Output("Almost done! Last location.");
-					//The last metroid is in captivity. The galaxy is almost complete.
-					string iKey = itemPool.Keys.ToArray()[0];
-					chosenItem = new Candidate(iKey, itemPool[iKey]); //itemPool.Keys[0];
-					chosenLocation = locationPool.Values.ToArray()[0];
+					// The last metroid is in captivity. The galaxy is almost complete.
+					chosenItem = unusedItems[0];
+					chosenLocation = unusedLocations[0];
 				} else {
-					if (currentAvailable == 1 && !Logic.Eval(RandoData.Macros["CAN_COMPLETE_GAME"].LogicPost, obtainedItems)) {
+					bool canCompleteGame = Logic.Eval(RandoData.Macros["CAN_COMPLETE_GAME"].LogicBase, obtainedItems);
+
+					if (availCount == 1 && !canCompleteGame) {
 						IO.Output("Must force!");
-						//Force Progression
-						List<Candidate> candItems = getItemCandidates(obtainedItems, currentAvailable, availableLocations);
+						// Force Progression
+						List<RandoItem> candItems = getItemCandidates(obtainedItems, availCount);
 						if (candItems.Count == 0) {
-							continue;
+							if (unusedItems.Count == 2) {
+								int vhsCount = unusedItems.Where(v => v.Name == "vhs").Count();
+
+								if (vhsCount == 2) {
+									IO.Output("A wild Panic Swap appeared!");
+									logCurrentItems(null, unusedLocations, unusedItems);
+
+									// Last Loc VHS Problem
+									RandoItem panicItem = unusedItems[0];
+									RandoLocation panicLocation = chooseLocation(obtainedLocations.Where(v => v.Locked == false && v.Item.Name != "vhs"));
+
+									RandoItem swapItem = panicLocation.Item;
+
+									placeAtLocation(panicItem, panicLocation);
+									unusedItems.Add(swapItem);
+									vhsCount--;
+
+									logCurrentItems(null, unusedLocations, unusedItems);
+									IO.Output($"Okay, panic resolved. I put {panicItem} at {panicLocation.ID} and will find a new home for {swapItem}");
+									continue;
+								}
+
+								logCurrentItems(obtainedLocations, unusedLocations, unusedItems);
+								throw new RandoException("No Candidate Items Left!");
+							}
 						}
 
 						// Pick an item
 						chosenItem = candItems[rnd.Next(candItems.Count - 1)];
 					} else {
 						// Choose a totes random item.
-						string chosenID = itemPool.Keys.ToArray()[rnd.Next(itemPool.Keys.Count - 1)];
-						chosenItem = new Candidate(chosenID, itemPool[chosenID]);
-						chosenItem.AddLocations(availableLocations);
+						chosenItem = unusedItems[rnd.Next(unusedItems.Count - 1)];
 					}
 					// Choose the spot
-					chosenLocation = chooseLocation(chosenItem, chosenItem.GetLocations().ToArray());       //This also removes item, loc from pools
+					chosenLocation = chooseLocation(allAvailLocations.Except(obtainedLocations));
 				}
 
 				// Place the item; remove from pools
 				placeAtLocation(chosenItem, chosenLocation);
 
 				// Mark as obtained
+				obtainedItems.Add(chosenItem);
+				if (countAvailableLocations(obtainedItems, out _) > availCount) {
+					//This item opened up progression; lock it in place.
+					chosenLocation.Locked = true;
+				}
 				obtainedLocations.Add(chosenLocation);
-				obtainedItems.Add(chosenItem.ItemID);
 
-				Debug.WriteLine($"{chosenLocation.Name}: I got put a {chosenItem.Item.Type.Name} on me.");
+				IO.Output($"{chosenLocation.ID}: I got put a {chosenItem.Name} on me.");
 			}
-			
+
 			IO.Output("Rando Finish");
-			Debug.WriteLine("Randomizing is finished... Let's see what we've got!");
 
-			IO.Output("Rando Debug Dump");
-			foreach (RandoLocation loc in obtainedLocations) {
-				Debug.WriteLine($"{loc.Name} now has {loc.Item.Type.Name}");
-			}
+#if DEBUG
+			logCurrentItems(obtainedLocations, null, null);
+#endif
 
 			return obtainedLocations;
 		}
 
-		private int countAvailableLocations(List<string> obtainedItems, out List<string> availableLocations) {
-			availableLocations = new List<string>();
-			foreach (string l in locationPool.Keys) {
-				if (Logic.Eval(locationPool[l], obtainedItems)) {
+		private void logCurrentItems(List<RandoLocation> obLoc, List<RandoLocation> unLoc, List<RandoItem> unIt) {
+			if (obLoc != null) {
+				IO.Output($"\n# OBTAINED #");
+				foreach (RandoLocation location in obLoc) {
+					IO.Output($"--{location.ToString()}");
+				}
+			}
+
+			if (unLoc != null) {
+				IO.Output($"\n# UNUSED LOCS #");
+				foreach (RandoLocation location in unLoc) {
+					IO.Output($"--{location.ToString()}");
+				}
+			}
+
+			if (unIt != null) {
+				IO.Output($"\n# UNUSED ITEMS #");
+				foreach (RandoItem item in unIt) {
+					IO.Output($"--{item.ToString()}");
+				}
+			}
+		}
+
+		private int countAvailableLocations(List<RandoItem> obtainedItems, out List<RandoLocation> availableLocations) {
+			availableLocations = new List<RandoLocation>();
+			foreach (RandoLocation l in unusedLocations) {
+				if (Logic.Eval(l, obtainedItems)) {
 					availableLocations.Add(l);
 				}
 			}
@@ -100,17 +148,13 @@ namespace GatoRobotoRandomizer {
 			return availableLocations.Count();
 		}
 
-		private List<Candidate> getItemCandidates(List<string> obtainedItems, int currentAvailable, List<string> availableLocations) {
-			List<Candidate> candidateItems = new List<Candidate>();
+		private List<RandoItem> getItemCandidates(List<RandoItem> obtainedItems, int currentAvailable) {
+			List<RandoItem> candidateItems = new List<RandoItem>();
 
-			foreach (string k in itemPool.Keys) {
+			foreach (RandoItem k in unusedItems) {
 				obtainedItems.Add(k);
-				Candidate cand = new Candidate(k, itemPool[k]);
 				if (countAvailableLocations(obtainedItems, out _) > currentAvailable) {
-					cand.AddLocations(availableLocations);
-				}
-				if (cand.CountLocations() > 0) {
-					candidateItems.Add(cand);
+					candidateItems.Add(k);
 				}
 				obtainedItems.Remove(k);
 
@@ -121,82 +165,32 @@ namespace GatoRobotoRandomizer {
 			return candidateItems;
 		}
 
-		private class Candidate {
-			public string ItemID { get; private set; }
-			public RandoItem Item { get; private set; }
-			private List<string> locations = new List<string>();
-
-			public Candidate(string itemID, RandoItem itemObj) {
-				this.ItemID = itemID;
-				this.Item = itemObj;
-			}
-
-			internal void AddLocations(List<string> newLocations) {
-				locations.AddRange(newLocations);
-			}
-
-			internal int CountLocations() {
-				return locations.Count();
-			}
-
-			internal List<string> GetLocations() {
-				return locations;
-			}
-
-			public override string ToString() {
-				return $"{ItemID}: \"{{ {string.Join(", ", locations)} }}\"";
-			}
+		private RandoLocation chooseLocation(IEnumerable<RandoLocation> choices) {
+			return choices.ElementAt(rnd.Next(choices.Count()));
 		}
 
-		private RandoLocation chooseLocation(Candidate chosenItem, string[] targsArr = null, bool whiteList = true) {
-			//whiteList = true;   can only place in the following locations
-			//whiteList = false;  can't place in the following locations
-
-			List<string> removeThese = new List<string>();
-			List<string> targs;
-			if (targsArr == null) {
-				targs = locationPool.Keys.ToList();
-			} else if (whiteList == true) {
-				targs = targsArr.ToList();
-			} else {
-				//Blacklist... gotta do some weird stuff here!
-				targs = locationPool.Keys.ToList();						//All avail locations become targs
-				List<string> negTargs = targsArr.ToList();		//The arg is a negative, so we
-				foreach (string targ in targs) {				//Go through all locations
-					foreach (string neg in negTargs) {			//And compare them to the blacklist
-						if (neg == targ) {
-							removeThese.Add(neg);				//Then flag the appropriate ones for removal.
-						}										//Now we're good to go as if it's a whitelist.
-					}
-				}
-			}
-
-			//Get rid of already used locations
-			foreach (string targ in targs) {
-				if (!locationPool.ContainsKey(targ)) {
-					removeThese.Add(targ);
-				}
-			}
-
-			if (removeThese.Count > 0) {
-				foreach (string loc in removeThese) {
-					targs.Remove(loc);
-				}
-			}
-
-			//Get the chosen location
-			RandoLocation chosenLocation = locationPool[targs[rnd.Next(targs.Count - 1)]];
-
-			return chosenLocation;
-		}
-
-		private void placeAtLocation(Candidate chosenItem, RandoLocation chosenLocation) {
+		private void placeAtLocation(RandoItem chosenItem, RandoLocation chosenLocation) {
 			//Place the item
-			chosenLocation.PlaceItem(itemPool[chosenItem.ItemID]);
+			chosenLocation.PlaceItem(chosenItem);
 
 			//Remove from the pools
-			locationPool.Remove(chosenLocation.Name);
-			itemPool.Remove(chosenItem.ItemID);
+			unusedLocations.Remove(chosenLocation);
+			unusedItems.Remove(chosenItem);
+		}
+
+		[Serializable]
+		private class RandoException : Exception {
+			public RandoException() {
+			}
+
+			public RandoException(string message) : base(message) {
+			}
+
+			public RandoException(string message, Exception innerException) : base(message, innerException) {
+			}
+
+			protected RandoException(SerializationInfo info, StreamingContext context) : base(info, context) {
+			}
 		}
 	}
 }

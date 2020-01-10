@@ -28,38 +28,40 @@ namespace GatoRobotoRandomizer {
 		}
 
 		public static string Dumps() {
-			Dictionary<string, RandoLocation> locs = RandoData.GetAllLocations();
+			List<RandoLocation> locs = RandoData.GetAllLocations();
 			StringBuilder sb = new StringBuilder();
 			char area = 'L';
 
-			foreach (string key in locs.Keys) {
-				if (area != key.First()) {
-					area = key.First();
+			foreach (RandoLocation location in locs) {
+				if (area != location.ID.First()) {
+					area = location.ID.First();
 					sb.AppendLine();
 				}
-				sb.AppendLine($"{key}: {RPN.Parse(locs[key].LogicBase, false)}");
+				sb.AppendLine($"{location.ID}: {RPN.Parse(location.LogicBase, false)}");
 			}
 
 			return sb.ToString();
 		}
 
-		public static bool Eval(RandoLocation location, List<string> obtained) {
+		public static bool Eval(RandoLocation location, List<RandoItem> obtained) {
 			return Eval(location.LogicBase, obtained);
 		}
 
-		public static bool Eval(string postfix, List<string> obtained) {
+		public static bool Eval(string postfix, List<RandoItem> obtained) {
 			if (postfix == "") return true;		// We can always access this location
 			if (obtained.Count == 0) return false;		// Location logic not blank, we have nothing; ergo we can't get to this location.
 
 			//Predicate for items; options
 			Predicate<string> predicate = sym => {
+				postfix = postfix;
 				if (sym.Contains(">")) {
 					//Item comparators
 					string[] split = sym.Split('>');
-					return obtained.Count<string>(s => s == split[0]) > int.Parse(split[1]);
+					int count = obtained.Where(v => v.Name == split[0]).Count();
+					return count > int.Parse(split[1]);
 				}
 
-				if (obtained.Contains(sym)) {
+				if (obtained.Select(v => v.Name).Contains(sym)) {
 					//Item
 					return true;
 				}
@@ -79,7 +81,8 @@ namespace GatoRobotoRandomizer {
 				//}
 			};
 
-			return Eval(postfix, predicate);
+			bool result = Eval(postfix, predicate);
+			return result;
 		}
 
 		public static bool Eval(string postfix, Predicate<string> eval) {
