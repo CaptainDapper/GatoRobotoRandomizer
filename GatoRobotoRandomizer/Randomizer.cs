@@ -72,7 +72,11 @@ namespace GatoRobotoRandomizer {
 									vhsCount--;
 
 									logCurrentItems(null, unusedLocations, unusedItems);
+#if DEBUG
 									IO.Output($"Okay, panic resolved. I put {panicItem} at {panicLocation.ID} and will find a new home for {swapItem}");
+#else
+									IO.Output($"Okay, panic resolved.");
+#endif
 									continue;
 								}
 
@@ -102,19 +106,19 @@ namespace GatoRobotoRandomizer {
 				}
 				obtainedLocations.Add(chosenLocation);
 
+#if DEBUG
 				IO.Output($"{chosenLocation.ID}: I got put a {chosenItem.Name} on me.");
+#endif
 			}
 
 			IO.Output("Rando Finish");
-
-#if DEBUG
 			logCurrentItems(obtainedLocations, null, null);
-#endif
 
 			return obtainedLocations;
 		}
 
 		private void logCurrentItems(List<RandoLocation> obLoc, List<RandoLocation> unLoc, List<RandoItem> unIt) {
+#if DEBUG
 			if (obLoc != null) {
 				IO.Output($"\n# OBTAINED #");
 				foreach (RandoLocation location in obLoc) {
@@ -135,6 +139,7 @@ namespace GatoRobotoRandomizer {
 					IO.Output($"--{item.ToString()}");
 				}
 			}
+#endif
 		}
 
 		private int countAvailableLocations(List<RandoItem> obtainedItems, out List<RandoLocation> availableLocations) {
