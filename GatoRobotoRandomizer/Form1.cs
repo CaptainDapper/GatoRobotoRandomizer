@@ -13,16 +13,26 @@ namespace GatoRobotoRandomizer {
 			IO.Path = ".";
 		}
 
-		private void Btn_reroll_Click(object sender, EventArgs e) {
-			text_seed.Text = RandoSettings.NewSeed().ToString();
+		private void Form1_Load(object sender, EventArgs e) {
+			IO.Log("Macro Dump:");
+			foreach (RandoMacro macro in RandoData.Macros.Values) {
+				IO.Log($"--{macro.Name} Post: '{macro.LogicPost}'");
+				IO.Log($"--{macro.Name} Base: '{macro.LogicBase}'\n");
+			}
+
+			promptForBackup();
+			IO.LogClear();
+			lbl_Version.Text = $"v{RandoSettings.Version}";
 		}
 
 		private void promptForBackup() {
+			//Look for the right map files
 			if (!IO.CheckFiles()) {
 				MessageBox.Show("Map files not found. Are you sure this program is in the Gato Roboto root directory?", "UH-OH!");
 				return;
 			}
 
+			//If we haven't chosen whether or not to backup, do so then backup if yes.
 			if (!Properties.Settings.Default.bln_backupPrompted && !Directory.Exists(IO.BackupPath)) {
 				DialogResult dr = MessageBox.Show("Make a backup of the Gato Roboto files? (Don't do this if you've already played the rando)", "Backups", MessageBoxButtons.YesNo);
 				if (dr == DialogResult.Yes) {
@@ -34,50 +44,14 @@ namespace GatoRobotoRandomizer {
 			}
 		}
 
-		private void Btn_submit_Click(object sender, EventArgs e) {
-			IO.Output("Rando Click");
-			DialogResult dr = MessageBox.Show("Continue with Randomization? This will overwrite the map files.", "Please Insert Quarter", MessageBoxButtons.YesNo);
-			if (dr == DialogResult.No) {
-				IO.Output("msgBox: No");
-				return;
-			}
-			IO.Output("msgBox: Yes");
-
-			IO.Output("Parse Seed");
-			if (!int.TryParse(text_seed.Text, out int seed)) {
-				seed = RandoSettings.NewSeed();
-				text_seed.Text = seed.ToString();
-			}
-
-			IO.Output($"Seed: {RandoSettings.Seed}");
-
-			IO.Output("Load Settings");
-			//Load Settings
-			RandoSettings.Seed = seed;
-			RandoSettings.Options_bool["OPTB_small_mech"] = optb_small_mech.Checked;
-			RandoSettings.Options_bool["OPTB_phase_save"] = optb_phase_save.Checked;
-			RandoSettings.Options_bool["OPTB_advanced"] = optb_advanced.Checked;
-			RandoSettings.Options_bool["OPTB_not_beginner"] = !optb_beginner.Checked;
-			RandoSettings.Options_bool["OPTB_not_100"] = !optb_100_possible.Checked;
-
-			IO.Output("Rando Inst");
-			//Randomize me Captain
-			Randomizer rando = new Randomizer();
-
-			IO.Output("Rando dot Rando");
-			List<RandoLocation> locations = rando.Randomize();
-
-			IO.Output("IO Write");
-			IO.WriteData(locations);
-
-			IO.Output("Rando Done!");
-			MessageBox.Show("Randomization Complete!", "Enjoy ;)");
-		}
-
 		private void Text_seed_KeyPress(object sender, KeyPressEventArgs e) {
 			if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) {
 				e.Handled = true;
 			}
+		}
+
+		private void Btn_reroll_Click(object sender, EventArgs e) {
+			text_seed.Text = RandoSettings.NewSeed().ToString();
 		}
 
 		private bool smallMechWarning = false;
@@ -89,40 +63,68 @@ namespace GatoRobotoRandomizer {
 			}
 		}
 
-		private void Form1_Load(object sender, EventArgs e) {
-			IO.Output("Macro Dump:");
-			foreach (RandoMacro macro in RandoData.Macros.Values) {
-				IO.Output($"--{macro.Name} Post: '{macro.LogicPost}'");
-				IO.Output($"--{macro.Name} Base: '{macro.LogicBase}'\n");
+		private void Btn_submit_Click(object sender, EventArgs e) {
+			IO.Log("Rando Click");
+			DialogResult dr = MessageBox.Show("Continue with Randomization? This will overwrite the map files.", "Please Insert Quarter", MessageBoxButtons.YesNo);
+			if (dr == DialogResult.No) {
+				IO.Log("msgBox: No");
+				return;
+			}
+			IO.Log("msgBox: Yes");
+
+			IO.Log("Parse Seed");
+			if (!int.TryParse(text_seed.Text, out int seed)) {
+				seed = RandoSettings.NewSeed();
+				text_seed.Text = seed.ToString();
 			}
 
-			promptForBackup();
-			IO.OutputClear();
-			lbl_Version.Text = $"v{RandoSettings.Version}";
+			IO.Log($"Seed: {RandoSettings.Seed}");
+
+			IO.Log("Load Settings");
+			//Load Settings
+			RandoSettings.Seed = seed;
+			RandoSettings.Options_bool["OPTB_small_mech"] = optb_small_mech.Checked;
+			RandoSettings.Options_bool["OPTB_phase_save"] = optb_phase_save.Checked;
+			RandoSettings.Options_bool["OPTB_advanced"] = optb_advanced.Checked;
+			RandoSettings.Options_bool["OPTB_not_beginner"] = !optb_beginner.Checked;
+			RandoSettings.Options_bool["OPTB_not_100"] = !optb_100_possible.Checked;
+
+			IO.Log("Rando Inst");
+			//Randomize me Captain
+			Randomizer rando = new Randomizer();
+
+			IO.Log("Rando dot Rando");
+			List<RandoLocation> locations = rando.Randomize();
+
+			IO.Log("IO Write");
+			IO.WriteData(locations);
+
+			IO.Log("Rando Done!");
+			MessageBox.Show("Randomization Complete!", "Enjoy ;)");
 		}
 
 		private void Btn_restore_Click(object sender, EventArgs e) {
-			IO.Output("Restore Click");
+			IO.Log("Restore Click");
 			DialogResult dr = MessageBox.Show("This doesn't actually restore your backups, but it will really place the items in their vanilla locations. Continue?", "Please Remove Quarter", MessageBoxButtons.YesNo);
 			if (dr == DialogResult.No) {
-				IO.Output("msgBox: No");
+				IO.Log("msgBox: No");
 				return;
 			}
-			IO.Output("msgBox: Yes");
+			IO.Log("msgBox: Yes");
 
-			IO.Output("Init Data");
+			IO.Log("Init Data");
 			List<RandoLocation> locs = RandoData.GetAllLocations();
 			List<RandoItem> itms = RandoData.GetAllItems();
 
-			IO.Output("Loop default data");
+			IO.Log("Loop default data");
 			foreach (RandoItem item in itms) {
 				locs.First(v => v.ID == item.OrigLoc).PlaceItem(item);
 			}
 
-			IO.Output("IO Write");
+			IO.Log("IO Write");
 			IO.WriteData(locs.ToList(), true);
 
-			IO.Output("Restore Done!");
+			IO.Log("Restore Done!");
 			MessageBox.Show("Unrandomization Complete!", "I hope you hate this! ;)");
 		}
 

@@ -8,12 +8,26 @@ using System;
 
 namespace GatoRobotoRandomizer {
 	public static class IO {
-		public static string DataWinFile { get { return $"{Path}/{_files[6]}"; } }
-		public static string Path { get; set; }
-		public static string BackupPath { get { return $"{Path}/GRR_BACKUP"; } }
+		public static string DataWinFile {
+			get {
+				return $"{Path}/{_files[6]}";
+			}
+		}
+		public static string Path {
+			get; set;
+		}
+		public static string BackupPath {
+			get {
+				return $"{Path}/GRR_BACKUP";
+			}
+		}
 
 
-		private static string _outputLog { get { return $"{Path}/output_log.txt"; } }
+		private static string _outputLog {
+			get {
+				return $"{Path}/output_log.txt";
+			}
+		}
 		private static string[] _files = { "map0", "map1", "map2", "map3", "map4", "map5", "data.win" };
 		private static bool _doClearOutput = false;
 
@@ -37,7 +51,27 @@ namespace GatoRobotoRandomizer {
 			return true;
 		}
 
-		public static void Output(string message) {
+		public enum LogType {
+			Debug,
+			Info,
+			Warn,
+			CRITICAL,
+			___
+		}
+
+		public static LogType LogLevel { get; set; } = LogType.Info;
+
+		public static void Log(string message, LogType level = LogType.___) {
+			LogType lev = level == LogType.___ ? LogLevel : level;
+
+			if (lev == LogType.Debug) {
+#if !DEBUG
+				return;		//No debug stuff in the release versions ;)
+#endif
+			}
+
+			message = $"[{lev}] {message}";
+
 			Debug.WriteLine("logged -> " + message);
 			if (!File.Exists(_outputLog) || _doClearOutput) {
 				File.Create(_outputLog).Dispose();
@@ -47,7 +81,7 @@ namespace GatoRobotoRandomizer {
 			File.AppendAllText(_outputLog, message + Environment.NewLine);
 		}
 
-		public static void OutputClear() {
+		public static void LogClear() {
 			_doClearOutput = true;
 		}
 
@@ -110,11 +144,11 @@ namespace GatoRobotoRandomizer {
 		public static void WriteData(List<RandoLocation> locations, bool doVanilla = false) {
 			Dictionary<string, JSONNode> maps = Randomizer.Maps;
 
-			IO.Output("Make Map Changes");
+			IO.Log("Make Map Changes");
 			//make map changes
 			MapChanger.MakeChanges(doVanilla);
 
-			IO.Output("Write Items");
+			IO.Log("Write Items");
 			//make item rando changes
 			foreach (RandoLocation loc in locations) {
 				JSONNode node = maps[loc.Map][loc.Room][loc.Inst];
@@ -122,7 +156,7 @@ namespace GatoRobotoRandomizer {
 				writeItemToLocation(node, loc.Item);
 			}
 
-			IO.Output("Serialize & encode all");
+			IO.Log("Serialize & encode all");
 			foreach (string map in maps.Keys) {
 				//serialize and encode
 				JSONNode node = maps[map];
@@ -132,7 +166,7 @@ namespace GatoRobotoRandomizer {
 					sw.Write(encoded);
 				}
 
-				IO.Output($"{map} done.");
+				IO.Log($"{map} done.");
 			}
 		}
 

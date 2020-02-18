@@ -17,7 +17,7 @@ namespace GatoRobotoRandomizer {
 			Dictionary<string, JSONNode> maps = Randomizer.Maps;
 
 			//Remove all rando_new Insts
-			IO.Output("Remove rando_new Insts");
+			IO.Log("Remove rando_new Insts");
 			List<InstDef> batch = new List<InstDef>();
 			foreach (InstDef def in InstDef.All.Where(val => val.randomizer_new)) {
 				maps[def.map][def.room].Remove(def.inst);
@@ -26,7 +26,7 @@ namespace GatoRobotoRandomizer {
 			InstDef.All.RemoveAll(val => batch.Contains(val));
 
 			if (doVanilla) {
-				IO.Output("Vanilla encode seed");
+				IO.Log("Vanilla encode seed");
 				//Unencode seed on first screen
 				maps["map0"]["0808"]["inst17"]["spr"] = "tileset0_52";
 				maps["map0"]["0808"]["inst20"]["spr"] = "tileset0_1";
@@ -42,7 +42,7 @@ namespace GatoRobotoRandomizer {
 
 			//Encode String on first screen
 			{
-				IO.Output($"Encode seed {RandoSettings.Seed}");
+				IO.Log($"Encode seed {RandoSettings.Seed}");
 				string[] s = SpriteSeed();
 				maps["map0"]["0808"]["inst17"]["spr"] = s[0];
 				maps["map0"]["0808"]["inst20"]["spr"] = s[1];
@@ -54,7 +54,7 @@ namespace GatoRobotoRandomizer {
 				maps["map0"]["0808"]["inst38"]["spr"] = s[7];
 			}
 
-			IO.Output("Add Heater Tiles");
+			IO.Log("Add Heater Tiles");
 			//Add blocks to Heater Core
 			AddTile("map3", "1817", "tileset1_42", 13, 7);
 			AddTile("map3", "1817", "tileset1_42", 14, 7);

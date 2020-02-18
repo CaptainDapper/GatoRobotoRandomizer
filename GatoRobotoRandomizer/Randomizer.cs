@@ -27,22 +27,22 @@ namespace GatoRobotoRandomizer {
 		}
 
 		public List<RandoLocation> Randomize() {
-			IO.Output("Get Stuff");
+			IO.Log("Get Stuff");
 			unusedItems = RandoData.GetAllItems();
 			unusedLocations = RandoData.GetAllLocations();
 
 			List<RandoLocation> obtainedLocations = new List<RandoLocation>();
 			List<RandoItem> obtainedItems = new List<RandoItem>();
 
-			IO.Output("Main Rando Loop");
+			IO.Log("Main Rando Loop");
 			while (unusedLocations.Count > 0) {
-				IO.Output($"Start Loop: {unusedLocations.Count} locs left");
+				IO.Log($"Start Loop: {unusedLocations.Count} locs left");
 				int availCount = countAvailableLocations(obtainedItems, out List<RandoLocation> allAvailLocations);
 				RandoItem chosenItem;
 				RandoLocation chosenLocation;
 
 				if (unusedLocations.Count == 1 && unusedItems.Count == 1) {
-					IO.Output("Almost done! Last location.");
+					IO.Log("Almost done! Last location.");
 					// The last metroid is in captivity. The galaxy is almost complete.
 					chosenItem = unusedItems[0];
 					chosenLocation = unusedLocations[0];
@@ -50,7 +50,7 @@ namespace GatoRobotoRandomizer {
 					bool canCompleteGame = Logic.Eval(RandoData.Macros["CAN_COMPLETE_GAME"].LogicBase, obtainedItems);
 
 					if (availCount == 1 && !canCompleteGame) {
-						IO.Output("Must force!");
+						IO.Log("Must force!");
 						// Force Progression
 						List<RandoItem> candItems = getItemCandidates(obtainedItems, availCount);
 						if (candItems.Count == 0) {
@@ -58,7 +58,7 @@ namespace GatoRobotoRandomizer {
 								int vhsCount = unusedItems.Where(v => v.Name == "vhs").Count();
 
 								if (vhsCount == 2) {
-									IO.Output("A wild Panic Swap appeared!");
+									IO.Log("A wild Panic Swap appeared!");
 									logCurrentItems(null, unusedLocations, unusedItems);
 
 									// Last Loc VHS Problem
@@ -75,7 +75,7 @@ namespace GatoRobotoRandomizer {
 #if DEBUG
 									IO.Output($"Okay, panic resolved. I put {panicItem} at {panicLocation.ID} and will find a new home for {swapItem}");
 #else
-									IO.Output($"Okay, panic resolved.");
+									IO.Log($"Okay, panic resolved.");
 #endif
 									continue;
 								}
@@ -111,7 +111,7 @@ namespace GatoRobotoRandomizer {
 #endif
 			}
 
-			IO.Output("Rando Finish");
+			IO.Log("Rando Finish");
 			logCurrentItems(obtainedLocations, null, null);
 
 			return obtainedLocations;
