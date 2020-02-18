@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatoRobotoRandomizer", "GatoRobotoRandomizer\GatoRobotoRandomizer.csproj", "{A7969D6F-455D-4193-8B08-E2898107704C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{ED79A654-6001-4B7A-98CD-12050946709D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTests", "ConsoleApp1\ConsoleTests.csproj", "{ED79A654-6001-4B7A-98CD-12050946709D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

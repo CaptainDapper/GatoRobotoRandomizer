@@ -27,7 +27,7 @@ namespace GatoRobotoRandomizer {
 				JSONNode map_data = Randomizer.Maps[mkey];
 				foreach (string rkey in map_data.Keys) {
 					{
-						string[] bad_rkeys = new[] {
+						string[] skipped_keys = new[] {
 								"default_room",
 								//map3 weird stuff
 								"diffY",
@@ -51,14 +51,14 @@ namespace GatoRobotoRandomizer {
 								"guiposX",
 								"rawstartposY",
 							};
-						if (bad_rkeys.Contains(rkey))
+						if (skipped_keys.Contains(rkey))
 							continue;
 					}
 
 					JSONNode room_data = map_data[rkey];
 					foreach (string ikey in room_data.Keys) {
 						{
-							string[] bad_ikeys = new[] {
+							string[] skipped_keys = new[] {
 								"downopen",
 								"upopen",
 								"rightopen",
@@ -71,7 +71,7 @@ namespace GatoRobotoRandomizer {
 								"roomtarget_y",
 							};
 
-							if (bad_ikeys.Contains(ikey))
+							if (skipped_keys.Contains(ikey))
 								continue;
 						}
 
