@@ -70,7 +70,9 @@ namespace GatoRobotoRandomizer {
 #endif
 			}
 
-			message = $"[{lev}] {message}";
+			if (message.Trim() != string.Empty) {
+				message = $"[{lev}] {message}";
+			}
 
 			Debug.WriteLine("logged -> " + message);
 			if (!File.Exists(_outputLog) || _doClearOutput) {

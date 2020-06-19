@@ -5,12 +5,19 @@ using System.Diagnostics;
 using SimpleJSON;
 using System.Runtime.Serialization;
 
+//curl -s https://api.github.com/repos/CaptainDapper/GatoRobotoRandomizer/releases | findstr download_count
+
 namespace GatoRobotoRandomizer {
 	public class Randomizer {
 		private Random rnd;
 
 		private List<RandoItem> unusedItems;
 		private List<RandoLocation> unusedLocations;
+
+		private List<RandoLocation> obtainedLocations;
+		private List<RandoItem> obtainedItems;
+
+		private int availCount;
 
 		private static Dictionary<string, JSONNode> pMaps = null;
 		public static Dictionary<string, JSONNode> Maps {
@@ -31,13 +38,13 @@ namespace GatoRobotoRandomizer {
 			unusedItems = RandoData.GetAllItems();
 			unusedLocations = RandoData.GetAllLocations();
 
-			List<RandoLocation> obtainedLocations = new List<RandoLocation>();
-			List<RandoItem> obtainedItems = new List<RandoItem>();
+			obtainedLocations = new List<RandoLocation>();
+			obtainedItems = new List<RandoItem>();
 
 			IO.Log("Main Rando Loop");
 			while (unusedLocations.Count > 0) {
-				IO.Log($"Start Loop: {unusedLocations.Count} locs left");
-				int availCount = countAvailableLocations(obtainedItems, out List<RandoLocation> allAvailLocations);
+				IO.Log($"Top of Loop: {unusedLocations.Count} locs left");
+				availCount = countAvailableLocations(obtainedItems, out List<RandoLocation> allAvailLocations);
 				RandoItem chosenItem;
 				RandoLocation chosenLocation;
 
@@ -50,7 +57,7 @@ namespace GatoRobotoRandomizer {
 					bool canCompleteGame = Logic.Eval(RandoData.Macros["CAN_COMPLETE_GAME"].LogicBase, obtainedItems);
 
 					if (availCount == 1 && !canCompleteGame) {
-						IO.Log("Must force!");
+						IO.Log("Must force!", IO.LogType.Warn);
 						// Force Progression
 						List<RandoItem> candItems = getItemCandidates(obtainedItems, availCount);
 						if (candItems.Count == 0) {
@@ -58,7 +65,7 @@ namespace GatoRobotoRandomizer {
 								int vhsCount = unusedItems.Where(v => v.Name == "vhs").Count();
 
 								if (vhsCount == 2) {
-									IO.Log("A wild Panic Swap appeared!");
+									IO.Log("A wild Panic Swap appeared!", IO.LogType.Warn);
 									logCurrentItems(null, unusedLocations, unusedItems);
 
 									// Last Loc VHS Problem
@@ -67,19 +74,18 @@ namespace GatoRobotoRandomizer {
 
 									RandoItem swapItem = panicLocation.Item;
 
+									removeFromLocation(swapItem, panicLocation);
 									placeAtLocation(panicItem, panicLocation);
-									unusedItems.Add(swapItem);
 									vhsCount--;
 
-									logCurrentItems(null, unusedLocations, unusedItems);
-#if DEBUG
-									IO.Output($"Okay, panic resolved. I put {panicItem} at {panicLocation.ID} and will find a new home for {swapItem}");
-#else
 									IO.Log($"Okay, panic resolved.");
-#endif
+									IO.Log($"I put {panicItem} at {panicLocation.ID} and will find a new home for {swapItem}", IO.LogType.Debug);
+
+									logCurrentItems(null, unusedLocations, unusedItems);
 									continue;
 								}
 
+								IO.Log($"I am reasonably certain something has gone wrong... I know you're upset, but please refrain from turning people into animals JUST yet.");
 								logCurrentItems(obtainedLocations, unusedLocations, unusedItems);
 								throw new RandoException("No Candidate Items Left!");
 							}
@@ -98,17 +104,7 @@ namespace GatoRobotoRandomizer {
 				// Place the item; remove from pools
 				placeAtLocation(chosenItem, chosenLocation);
 
-				// Mark as obtained
-				obtainedItems.Add(chosenItem);
-				if (countAvailableLocations(obtainedItems, out _) > availCount) {
-					//This item opened up progression; lock it in place.
-					chosenLocation.Locked = true;
-				}
-				obtainedLocations.Add(chosenLocation);
-
-#if DEBUG
-				IO.Output($"{chosenLocation.ID}: I got put a {chosenItem.Name} on me.");
-#endif
+				IO.Log($"{chosenLocation.ID}: I got put a {chosenItem.Name} on me.", IO.LogType.Debug);
 			}
 
 			IO.Log("Rando Finish");
@@ -118,28 +114,26 @@ namespace GatoRobotoRandomizer {
 		}
 
 		private void logCurrentItems(List<RandoLocation> obLoc, List<RandoLocation> unLoc, List<RandoItem> unIt) {
-#if DEBUG
 			if (obLoc != null) {
-				IO.Output($"\n# OBTAINED #");
+				IO.Log($"# OBTAINED : {obLoc.Count}/32 #");
 				foreach (RandoLocation location in obLoc) {
-					IO.Output($"--{location.ToString()}");
+					IO.Log($"--{location}", IO.LogType.Debug);
 				}
 			}
 
 			if (unLoc != null) {
-				IO.Output($"\n# UNUSED LOCS #");
+				IO.Log($"# UNUSED LOCS : {unLoc.Count}/32 #");
 				foreach (RandoLocation location in unLoc) {
-					IO.Output($"--{location.ToString()}");
+					IO.Log($"--{location}", IO.LogType.Debug);
 				}
 			}
 
 			if (unIt != null) {
-				IO.Output($"\n# UNUSED ITEMS #");
+				IO.Log($"# UNUSED ITEMS : {unIt.Count}/32 #");
 				foreach (RandoItem item in unIt) {
-					IO.Output($"--{item.ToString()}");
+					IO.Log($"--{item}", IO.LogType.Debug);
 				}
 			}
-#endif
 		}
 
 		private int countAvailableLocations(List<RandoItem> obtainedItems, out List<RandoLocation> availableLocations) {
@@ -162,8 +156,6 @@ namespace GatoRobotoRandomizer {
 					candidateItems.Add(k);
 				}
 				obtainedItems.Remove(k);
-
-				Debug.Write("");
 			}
 
 			Debug.Write("");
@@ -181,6 +173,31 @@ namespace GatoRobotoRandomizer {
 			//Remove from the pools
 			unusedLocations.Remove(chosenLocation);
 			unusedItems.Remove(chosenItem);
+
+			// Mark as obtained
+			obtainedItems.Add(chosenItem);
+			if (countAvailableLocations(obtainedItems, out _) > availCount) {
+				//This item opened up progression; lock it in place.
+				chosenLocation.Locked = true;
+			}
+			obtainedLocations.Add(chosenLocation);
+		}
+
+		private void removeFromLocation(RandoItem chosenItem, RandoLocation chosenLocation) {
+			if (chosenLocation.Locked == true) {
+				throw new RandoException("The attempt on a Locked Location has left the program scarred and deformed.");
+			}
+
+			//Clear the item
+			chosenLocation.ClearItem();
+
+			//Add back into pools
+			unusedLocations.Add(chosenLocation);
+			unusedItems.Add(chosenItem);
+
+			// Mark as unobtained
+			obtainedItems.Remove(chosenItem);
+			obtainedLocations.Remove(chosenLocation);
 		}
 
 		[Serializable]

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace GatoRobotoRandomizer {
@@ -98,6 +99,10 @@ namespace GatoRobotoRandomizer {
 
 		public void PlaceItem(RandoItem item) {
 			this.Item = item;
+		}
+
+		public void ClearItem() {
+			this.Item = null;
 		}
 
 		public override string ToString() {
